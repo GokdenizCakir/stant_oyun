@@ -17,7 +17,7 @@ func QuestionRouter(r *gin.RouterGroup) {
 
 		questionRouter.
 			POST("", questionController.CreateQuestion).
-			GET(":difficulty", middlewares.AuthMiddleware(), questionController.GetQuestion).
+			GET("", middlewares.AuthMiddleware(), questionController.GetQuestion).
 			POST("/answer", middlewares.AuthMiddleware(), questionController.AnswerQuestion)
 	}
 }
