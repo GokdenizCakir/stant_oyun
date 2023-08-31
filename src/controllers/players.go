@@ -6,11 +6,18 @@ import (
 	"github.com/GokdenizCakir/stant_oyun/src/dto"
 	"github.com/GokdenizCakir/stant_oyun/src/models"
 	"github.com/GokdenizCakir/stant_oyun/src/services"
+	"github.com/GokdenizCakir/stant_oyun/src/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type PlayerController struct {
 	playerService *services.PlayerService
+}
+
+type JWTPlayerData struct {
+	UUID      uuid.UUID
+	Questions [][]int
 }
 
 func NewPlayerController(playerService *services.PlayerService) *PlayerController {
@@ -34,7 +41,15 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"ID": player.ID})
+	access_token, err := utils.GenerateJWT(JWTPlayerData{UUID: player.ID, Questions: [][]int{{-1, -1}, {-1, -1}, {-1, -1}}})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	c.SetCookie("jwt", access_token, 3600, "/", "localhost", false, true)
+	c.JSON(http.StatusCreated, gin.H{"jwt": access_token})
 }
 
 func (p *PlayerController) GetScoreboard(c *gin.Context) {
