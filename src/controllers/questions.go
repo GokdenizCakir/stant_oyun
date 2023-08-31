@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 
 	"github.com/GokdenizCakir/stant_oyun/src/dto"
@@ -56,11 +57,25 @@ func (q *QuestionController) CreateQuestion(c *gin.Context) {
 
 func (q *QuestionController) GetQuestion(c *gin.Context) {
 	JWTData := c.MustGet("user")
-	// JWTPlayerID := JWTData.(map[string]interface{})["UUID"].(string)
 	JWTQuestions := JWTData.(map[string]interface{})["Questions"].([]interface{})
 
-	difficulty := c.Param("difficulty")
+	var questionIndex int
+	var difficulty string
 
+	for i := range JWTQuestions {
+		if JWTQuestions[i].([]interface{})[1].(float64) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "You already answered wrong"})
+			return
+		} else if JWTQuestions[i].([]interface{})[0].(float64) != -1 && JWTQuestions[i].([]interface{})[1].(float64) == -1 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "You haven't answered yet"})
+			return
+		} else if JWTQuestions[i].([]interface{})[0].(float64) == -1 && JWTQuestions[i].([]interface{})[1].(float64) == -1 {
+			questionIndex = i
+			break
+		}
+	}
+
+	difficulty = fmt.Sprintf("%.0f", math.Ceil(float64(questionIndex+1)/2))
 	question, err := q.QuestionService.GetQuestion(difficulty)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -68,16 +83,7 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 	}
 
 	question.Answer = ""
-
-	for i := range JWTQuestions {
-		if JWTQuestions[i].([]interface{})[1].(float64) == 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "You already answered wrong"})
-			return
-		} else if JWTQuestions[i].([]interface{})[0].(float64) == -1 {
-			JWTQuestions[i] = []interface{}{float64(question.ID), -1}
-			break
-		}
-	}
+	JWTQuestions[questionIndex] = []interface{}{float64(question.ID), -1}
 
 	err = utils.UpdateJWT(c, "Questions", JWTQuestions)
 	if err != nil {
@@ -90,30 +96,30 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 
 func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	var answerBody *dto.AnswerQuestionDto
-	JWTData := c.MustGet("user")
 
+	JWTData := c.MustGet("user")
 	JWTPlayerID, err := uuid.Parse(JWTData.(map[string]interface{})["UUID"].(string))
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	JWTQuestions := JWTData.(map[string]interface{})["Questions"].([]interface{})
-
 	var questionIndex int
 	var questionID int
+
 	for i := range JWTQuestions {
 		if JWTQuestions[i].([]interface{})[1].(float64) == 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "You already answered wrong"})
 			return
 		} else if JWTQuestions[i].([]interface{})[1].(float64) == -1 {
 			questionIndex = i
-			questionID = int(JWTQuestions[i].([]interface{})[0].(float64))
 			break
 		}
 	}
 
-	fmt.Println(questionID)
+	questionID = int(JWTQuestions[questionIndex].([]interface{})[0].(float64))
 	if questionID == -1 {
 		fmt.Println("You haven't seen the question yet")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "You haven't seen the question yet"})

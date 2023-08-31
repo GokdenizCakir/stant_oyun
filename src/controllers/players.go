@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/GokdenizCakir/stant_oyun/src/dto"
 	"github.com/GokdenizCakir/stant_oyun/src/models"
@@ -41,7 +43,18 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	access_token, err := utils.GenerateJWT(JWTPlayerData{UUID: player.ID, Questions: [][]int{{-1, -1}, {-1, -1}, {-1, -1}}})
+	questionCount, err := strconv.Atoi(os.Getenv("QUESTION_COUNT"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	emptyQuestionsData := make([][]int, questionCount)
+	for i := range emptyQuestionsData {
+		emptyQuestionsData[i] = []int{-1, -1}
+	}
+
+	access_token, err := utils.GenerateJWT(JWTPlayerData{UUID: player.ID, Questions: emptyQuestionsData})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
