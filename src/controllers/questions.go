@@ -59,7 +59,7 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 	JWTData := c.MustGet("user")
 	JWTQuestions := JWTData.(map[string]interface{})["Questions"].([]interface{})
 
-	var questionIndex int
+	questionIndex := -1
 	var difficulty string
 
 	for i := range JWTQuestions {
@@ -73,6 +73,11 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 			questionIndex = i
 			break
 		}
+	}
+
+	if questionIndex == -1 {
+		c.JSON(http.StatusOK, gin.H{"data": "You won"})
+		return
 	}
 
 	difficulty = fmt.Sprintf("%.0f", math.Ceil(float64(questionIndex+1)/2))
@@ -106,7 +111,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	}
 
 	JWTQuestions := JWTData.(map[string]interface{})["Questions"].([]interface{})
-	var questionIndex int
+	questionIndex := -1
 	var questionID int
 
 	for i := range JWTQuestions {
@@ -117,6 +122,11 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 			questionIndex = i
 			break
 		}
+	}
+
+	if questionIndex == -1 {
+		c.JSON(http.StatusOK, gin.H{"data": "You already won"})
+		return
 	}
 
 	questionID = int(JWTQuestions[questionIndex].([]interface{})[0].(float64))
