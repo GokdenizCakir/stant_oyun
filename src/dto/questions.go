@@ -1,7 +1,5 @@
 package dto
 
-import "github.com/google/uuid"
-
 type CreateQuestionDto struct {
 	Value      string `json:"value" binding:"required"`
 	A          string `json:"a" binding:"required"`
@@ -13,6 +11,5 @@ type CreateQuestionDto struct {
 }
 
 type AnswerQuestionDto struct {
-	Answer     string    `json:"answer" binding:"required"`
-	PlayerID   uuid.UUID `json:"player_id" binding:"required"`
+	Answer string `json:"answer" binding:"required"`
 }
