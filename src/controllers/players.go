@@ -30,7 +30,8 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 	var playerBody *dto.CreatePlayerDto
 
 	if err := c.ShouldBindJSON(&playerBody); err != nil {
-		return c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	var newPlayer = &models.Player{
