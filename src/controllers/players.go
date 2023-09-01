@@ -68,6 +68,11 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"jwt": access_token})
 }
 
+func (p *PlayerController) LogoutPlayer(c *gin.Context) {
+	c.SetCookie("jwt", "", -1, "/", "localhost", false, true)
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
+}
+
 func (p *PlayerController) GetScoreboard(c *gin.Context) {
 	scoreboard, err := p.playerService.GetScoreboard()
 	if err != nil {
