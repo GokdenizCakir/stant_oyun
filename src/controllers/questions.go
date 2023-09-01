@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/GokdenizCakir/stant_oyun/src/dto"
 	"github.com/GokdenizCakir/stant_oyun/src/models"
@@ -93,7 +96,7 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 	question.Answer = ""
 	JWTQuestions[questionIndex] = []interface{}{float64(question.ID), -1}
 
-	err = utils.UpdateJWT(c, "Questions", JWTQuestions)
+	err = utils.UpdateJWT(c, "Questions", JWTQuestions, true)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -112,6 +115,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 
 	JWTData := c.MustGet("user")
 	JWTPlayerID, err := uuid.Parse(JWTData.(map[string]interface{})["UUID"].(string))
+	lastViewedAt := JWTData.(map[string]interface{})["LastViewedAt"].(float64)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -144,6 +148,17 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		return
 	}
 
+	questionSeconds, err := strconv.Atoi(os.Getenv("QUESTION_SECONDS"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if time.Now().Unix() > (int64(lastViewedAt) + int64(questionSeconds)) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Time is up"})
+		return
+	}
+
 	question, err := q.QuestionService.GetQuestionByID(uint(questionID))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -158,13 +173,13 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		}
 
 		JWTQuestions[questionIndex] = []interface{}{questionID, 1}
-		utils.UpdateJWT(c, "Questions", JWTQuestions)
+		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
 		c.JSON(http.StatusOK, gin.H{"data": true, "score": score})
 		return
 	} else {
 		JWTQuestions[questionIndex] = []interface{}{questionID, 0}
-		utils.UpdateJWT(c, "Questions", JWTQuestions)
+		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
 		c.JSON(http.StatusOK, gin.H{"data": false, "score": questionIndex})
 	}

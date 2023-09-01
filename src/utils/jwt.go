@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -47,7 +48,7 @@ func SignJWT(header, payload string) string {
 	return URLSafeBase64Encode(string(signature))
 }
 
-func UpdateJWT(c *gin.Context, key string, value interface{}) error {
+func UpdateJWT(c *gin.Context, key string, value interface{}, isUpdatingTime bool) error {
 	token, err := c.Cookie("jwt")
 	if err != nil {
 		return fmt.Errorf("missing authorization token")
@@ -64,6 +65,10 @@ func UpdateJWT(c *gin.Context, key string, value interface{}) error {
 	}
 
 	dataMap[key] = value
+	if isUpdatingTime {
+		dataMap["LastViewedAt"] = time.Now().Unix()
+	}
+
 	newJWT, err := GenerateJWT(dataMap)
 
 	if err != nil {
@@ -80,17 +85,6 @@ func HandleJWT(token string) (interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid token")
 	}
-
-	/*
-		exp, ok := data["exp"].(float64)
-		if !ok {
-			return nil, fmt.Errorf("invalid tokenb")
-		}
-
-		if float64(time.Now().Unix()) > exp {
-			return data, fmt.Errorf("token has expired")
-		}
-	*/
 
 	return data, nil
 }
