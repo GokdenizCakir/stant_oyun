@@ -31,6 +31,7 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&playerBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	var newPlayer = &models.Player{
@@ -41,6 +42,7 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 	player, err := p.playerService.CreatePlayer(newPlayer)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	questionCount, err := strconv.Atoi(os.Getenv("QUESTION_COUNT"))
@@ -59,6 +61,7 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
+		return
 	}
 
 	c.SetCookie("jwt", access_token, 3600, "/", "localhost", false, true)
@@ -69,6 +72,7 @@ func (p *PlayerController) GetScoreboard(c *gin.Context) {
 	scoreboard, err := p.playerService.GetScoreboard()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": scoreboard})
