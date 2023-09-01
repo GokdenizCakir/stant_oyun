@@ -32,8 +32,10 @@ func (q *QuestionController) CreateQuestion(c *gin.Context) {
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": validationErrors.Error()})
+			return
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
 		}
 	}
 
@@ -50,6 +52,7 @@ func (q *QuestionController) CreateQuestion(c *gin.Context) {
 	question, err := q.QuestionService.CreateQuestion(newQuestion)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"data": question})
@@ -102,6 +105,11 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	var answerBody *dto.AnswerQuestionDto
 
+	if err := c.ShouldBindJSON(&answerBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	JWTData := c.MustGet("user")
 	JWTPlayerID, err := uuid.Parse(JWTData.(map[string]interface{})["UUID"].(string))
 
@@ -133,11 +141,6 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	if questionID == -1 {
 		fmt.Println("You haven't seen the question yet")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "You haven't seen the question yet"})
-		return
-	}
-
-	if err := c.ShouldBindJSON(&answerBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
