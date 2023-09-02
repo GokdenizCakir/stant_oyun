@@ -102,7 +102,7 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": question, "questionIndex": questionIndex})
+	c.JSON(http.StatusOK, gin.H{"data": question})
 }
 
 func (q *QuestionController) AnswerQuestion(c *gin.Context) {
