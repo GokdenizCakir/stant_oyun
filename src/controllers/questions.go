@@ -73,7 +73,15 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "You already answered wrong"})
 			return
 		} else if JWTQuestions[i].([]interface{})[0].(float64) != -1 && JWTQuestions[i].([]interface{})[1].(float64) == -1 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "You haven't answered yet"})
+			/* Viewed question but refreshed page without answering */
+			question, err := q.QuestionService.GetQuestionByID(uint(JWTQuestions[i].([]interface{})[0].(float64)))
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			question.Answer = ""
+			c.JSON(http.StatusOK, gin.H{"data": question})
 			return
 		} else if JWTQuestions[i].([]interface{})[0].(float64) == -1 && JWTQuestions[i].([]interface{})[1].(float64) == -1 {
 			questionIndex = i
