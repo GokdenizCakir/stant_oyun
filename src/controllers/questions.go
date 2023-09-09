@@ -81,7 +81,14 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 			}
 
 			question.Answer = ""
-			c.JSON(http.StatusOK, gin.H{"data": question})
+			lastViewedAt := time.Unix(int64(JWTData.(map[string]interface{})["LastViewedAt"].(float64)), 0)
+			questionSeconds, err := strconv.ParseFloat(os.Getenv("QUESTION_SECONDS"), 64)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			timeLeft := questionSeconds - time.Since(lastViewedAt).Seconds()
+			c.JSON(http.StatusOK, gin.H{"data": question, "timeLeft": timeLeft})
 			return
 		} else if JWTQuestions[i].([]interface{})[0].(float64) == -1 && JWTQuestions[i].([]interface{})[1].(float64) == -1 {
 			questionIndex = i
