@@ -169,19 +169,22 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		return
 	}
 
-	if time.Now().Unix() > (int64(lastViewedAt) + int64(questionSeconds)) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Time is up"})
-		return
-	}
-
 	question, err := q.QuestionService.GetQuestionByID(uint(questionID))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	if time.Now().Unix() > (int64(lastViewedAt) + int64(questionSeconds)) {
+		JWTQuestions[questionIndex] = []interface{}{questionID, 0}
+		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
+
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Time is up", "answer": question.Answer})
+		return
+	}
+
 	if question.Answer == answerBody.Answer {
-		score, err := q.QuestionService.IncreasePoints(JWTPlayerID, 1)
+		_, err := q.QuestionService.IncreasePoints(JWTPlayerID, 1)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -190,13 +193,13 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		JWTQuestions[questionIndex] = []interface{}{questionID, 1}
 		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
-		c.JSON(http.StatusOK, gin.H{"data": true, "score": score})
+		c.JSON(http.StatusOK, gin.H{"data": true, "answer": question.Answer})
 		return
 	} else {
 		JWTQuestions[questionIndex] = []interface{}{questionID, 0}
 		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
-		c.JSON(http.StatusOK, gin.H{"data": false, "score": questionIndex})
+		c.JSON(http.StatusOK, gin.H{"data": false, "answer": question.Answer})
 	}
 
 }
