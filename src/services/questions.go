@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/GokdenizCakir/stant_oyun/src/models"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -53,7 +52,7 @@ func (q *QuestionService) GetQuestionByID(id uint) (*models.Question, error) {
 	return &question, nil
 }
 
-func (p *QuestionService) IncreasePoints(ID uuid.UUID, amount int) (int, error) {
+func (p *QuestionService) IncreasePoints(ID float64, amount int) (int, error) {
 	var player models.Player
 
 	if err := p.DB.Where("id = ?", ID).First(&player).Error; err != nil {

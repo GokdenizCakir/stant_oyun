@@ -15,7 +15,6 @@ import (
 	"github.com/GokdenizCakir/stant_oyun/src/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 )
 
 type QuestionController struct {
@@ -130,14 +129,8 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 
 	JWTData := c.MustGet("user")
 	b64token := c.MustGet("b64token").(string)
-	fmt.Println(b64token)
-	JWTPlayerID, err := uuid.Parse(JWTData.(map[string]interface{})["UUID"].(string))
+	JWTPlayerID := JWTData.(map[string]interface{})["ID"].(float64)
 	lastViewedAt := JWTData.(map[string]interface{})["LastViewedAt"].(float64)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 
 	JWTQuestions := JWTData.(map[string]interface{})["Questions"].([]interface{})
 	questionIndex := -1
@@ -160,7 +153,6 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 
 	questionID = int(JWTQuestions[questionIndex].([]interface{})[0].(float64))
 	if questionID == -1 {
-		fmt.Println("You haven't seen the question yet")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "You haven't seen the question yet"})
 		return
 	}
@@ -168,12 +160,6 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	questionSeconds, err := strconv.Atoi(os.Getenv("QUESTION_SECONDS"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	jwt_used_before_err := services.InsertJWT(&models.JWT{JWT: b64token})
-	if jwt_used_before_err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token used before"})
 		return
 	}
 
@@ -188,6 +174,12 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Time is up", "answer": question.Answer})
+		return
+	}
+
+	jwt_used_before_err := services.InsertJWT(&models.JWT{JWT: b64token})
+	if jwt_used_before_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token used before"})
 		return
 	}
 
