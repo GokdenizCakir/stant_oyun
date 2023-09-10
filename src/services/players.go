@@ -1,7 +1,11 @@
 package services
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/GokdenizCakir/stant_oyun/src/models"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"gorm.io/gorm"
 )
@@ -25,6 +29,11 @@ func NewPlayerService(db *gorm.DB, player *models.Player) *PlayerService {
 
 func (p *PlayerService) CreatePlayer(player *models.Player) (*models.Player, error) {
 	if err := p.DB.Create(player).Error; err != nil {
+		var perr *pgconn.PgError
+		errors.As(err, &perr)
+		if perr.Code == "23505" || errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, fmt.Errorf("bu telefon numarası ile daha önce kayıt olunmuş")
+		}
 		return nil, err
 	}
 
