@@ -60,6 +60,9 @@ func (p *QuestionService) IncreasePoints(ID float64, amount int) (int, error) {
 	}
 
 	player.Score += amount
+	if amount == 0 {
+		player.Score = 0
+	}
 
 	if err := p.DB.Save(&player).Error; err != nil {
 		return 0, err

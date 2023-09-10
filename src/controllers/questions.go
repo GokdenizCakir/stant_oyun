@@ -196,6 +196,12 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": true, "answer": question.Answer})
 		return
 	} else {
+		_, err := q.QuestionService.IncreasePoints(JWTPlayerID, 0)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
 		JWTQuestions[questionIndex] = []interface{}{questionID, 0}
 		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
