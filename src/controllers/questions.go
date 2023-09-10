@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
-	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -100,7 +98,7 @@ func (q *QuestionController) GetQuestion(c *gin.Context) {
 		return
 	}
 
-	difficulty = fmt.Sprintf("%.0f", math.Ceil(float64(questionIndex+1)/2))
+	difficulty = strconv.Itoa(questionIndex + 1)
 	question, err := q.QuestionService.GetQuestion(difficulty)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -128,7 +126,6 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	}
 
 	JWTData := c.MustGet("user")
-	b64token := c.MustGet("b64token").(string)
 	JWTPlayerID := JWTData.(map[string]interface{})["ID"].(float64)
 	lastViewedAt := JWTData.(map[string]interface{})["LastViewedAt"].(float64)
 
@@ -177,9 +174,14 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		return
 	}
 
-	jwt_used_before_err := services.InsertJWT(&models.JWT{JWT: b64token})
-	if jwt_used_before_err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token used before"})
+	playerScore, playerHasFinished, err := q.QuestionService.GetPlayerStatus(JWTPlayerID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if (questionIndex < playerScore) || playerHasFinished {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "You already answered this question."})
 		return
 	}
 
@@ -193,7 +195,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		JWTQuestions[questionIndex] = []interface{}{questionID, 1}
 		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
-		c.JSON(http.StatusOK, gin.H{"data": true, "answer": question.Answer})
+		c.JSON(http.StatusOK, gin.H{"answer": question.Answer})
 		return
 	} else {
 		_, err := q.QuestionService.IncreasePoints(JWTPlayerID, 0)
@@ -205,7 +207,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		JWTQuestions[questionIndex] = []interface{}{questionID, 0}
 		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
-		c.JSON(http.StatusOK, gin.H{"data": false, "answer": question.Answer})
+		c.JSON(http.StatusOK, gin.H{"answer": question.Answer})
 	}
 
 }
