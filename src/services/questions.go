@@ -1,8 +1,10 @@
 package services
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/GokdenizCakir/stant_oyun/src/models"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -53,14 +55,38 @@ func (q *QuestionService) GetQuestionByID(id uint) (*models.Question, error) {
 	return &question, nil
 }
 
-func (p *QuestionService) IncreasePoints(ID uuid.UUID, amount int) (int, error) {
+func (p *QuestionService) GetPlayerStatus(id float64) (int, bool, error) {
 	var player models.Player
 
-	if err := p.DB.Where("id = ?", ID).First(&player).Error; err != nil {
+	if err := p.DB.Where("id = ?", id).First(&player).Error; err != nil {
+		return 0, false, err
+	}
+
+	return player.Score, player.HasFinished, nil
+}
+
+func (p *QuestionService) IncreasePoints(id float64, amount int) (int, error) {
+	var player models.Player
+
+	if err := p.DB.Where("id = ?", id).First(&player).Error; err != nil {
+		return 0, err
+	}
+
+	questionCount, err := strconv.Atoi(os.Getenv("QUESTION_COUNT"))
+	if err != nil {
 		return 0, err
 	}
 
 	player.Score += amount
+
+	if player.Score == questionCount {
+		player.HasFinished = true
+	}
+
+	if amount == 0 {
+		player.Score = 0
+		player.HasFinished = true
+	}
 
 	if err := p.DB.Save(&player).Error; err != nil {
 		return 0, err

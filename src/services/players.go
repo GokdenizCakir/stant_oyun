@@ -31,6 +31,35 @@ func (p *PlayerService) CreatePlayer(player *models.Player) (*models.Player, err
 	return player, nil
 }
 
+func (p *PlayerService) GetPlayerStatus(ID float64) (int, error) {
+	var player models.Player
+
+	if err := p.DB.Where("id = ?", ID).First(&player).Error; err != nil {
+		return 0, err
+	}
+
+	return player.Score, nil
+}
+
+func (p *PlayerService) IncreasePoints(ID float64, amount int) (int, error) {
+	var player models.Player
+
+	if err := p.DB.Where("id = ?", ID).First(&player).Error; err != nil {
+		return 0, err
+	}
+
+	player.Score += amount
+	if amount == 0 {
+		player.Score = 0
+	}
+
+	if err := p.DB.Save(&player).Error; err != nil {
+		return 0, err
+	}
+
+	return player.Score, nil
+}
+
 func (p *PlayerService) GetScoreboard() ([]PlayerScore, error) {
 	var players []models.Player
 	var playerScores []PlayerScore

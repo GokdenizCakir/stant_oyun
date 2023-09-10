@@ -10,7 +10,6 @@ import (
 	"github.com/GokdenizCakir/stant_oyun/src/services"
 	"github.com/GokdenizCakir/stant_oyun/src/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type PlayerController struct {
@@ -18,7 +17,7 @@ type PlayerController struct {
 }
 
 type JWTPlayerData struct {
-	UUID      uuid.UUID
+	ID        uint
 	Questions [][]int
 }
 
@@ -56,7 +55,7 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		emptyQuestionsData[i] = []int{-1, -1}
 	}
 
-	access_token, err := utils.GenerateJWT(JWTPlayerData{UUID: player.ID, Questions: emptyQuestionsData})
+	access_token, err := utils.GenerateJWT(JWTPlayerData{ID: player.ID, Questions: emptyQuestionsData})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),

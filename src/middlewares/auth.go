@@ -26,8 +26,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		/* token = strings.Split(token, " ")[1] */
-
 		data, err := utils.HandleJWT(token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
