@@ -129,6 +129,8 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	}
 
 	JWTData := c.MustGet("user")
+	b64token := c.MustGet("b64token").(string)
+	fmt.Println(b64token)
 	JWTPlayerID, err := uuid.Parse(JWTData.(map[string]interface{})["UUID"].(string))
 	lastViewedAt := JWTData.(map[string]interface{})["LastViewedAt"].(float64)
 
@@ -166,6 +168,12 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	questionSeconds, err := strconv.Atoi(os.Getenv("QUESTION_SECONDS"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jwt_used_before_err := services.InsertJWT(&models.JWT{JWT: b64token})
+	if jwt_used_before_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token used before"})
 		return
 	}
 

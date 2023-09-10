@@ -23,6 +23,7 @@ func Init() {
 	err = DB.AutoMigrate(
 		&models.Question{},
 		&models.Player{},
+		&models.JWT{},
 	)
 	if err != nil {
 		panic("error migrating db")

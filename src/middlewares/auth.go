@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/GokdenizCakir/stant_oyun/src/utils"
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		/* token = strings.Split(token, " ")[1] */
+		b64token := strings.Split(token, ".")[1]
 
 		data, err := utils.HandleJWT(token)
 		if err != nil {
@@ -37,6 +38,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		c.Set("user", data)
+		c.Set("b64token", b64token)
 		c.Next()
 	}
 }
