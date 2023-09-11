@@ -71,12 +71,12 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 	}
 
 	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie("jwt", access_token, 3600, "/", "milyoner.egehan.dev", true, true)
+	c.SetCookie("jwt", access_token, 3600, "/", "egehan.dev", true, true)
 	c.JSON(http.StatusCreated, gin.H{"jwt": access_token})
 }
 
 func (p *PlayerController) LogoutPlayer(c *gin.Context) {
-	c.SetCookie("jwt", "", -1, "/", "milyoner.egehan.dev", true, true)
+	c.SetCookie("jwt", "", -1, "/", "egehan.dev", true, true)
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }
 
