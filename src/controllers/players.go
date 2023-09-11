@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/GokdenizCakir/stant_oyun/src/dto"
 	"github.com/GokdenizCakir/stant_oyun/src/models"
@@ -30,6 +31,12 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&playerBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	playerBody.Phone = strings.TrimPrefix(playerBody.Phone, "0")
+	if !utils.IsPhoneNumber(playerBody.Phone) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Geçersiz telefon numarası"})
 		return
 	}
 
