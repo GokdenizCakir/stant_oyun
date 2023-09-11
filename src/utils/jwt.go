@@ -75,7 +75,7 @@ func UpdateJWT(c *gin.Context, key string, value interface{}, isUpdatingTime boo
 		return fmt.Errorf("error generating new JWT")
 	}
 
-	c.SetCookie("jwt", newJWT, 3600, "/", "milyoner.egehan.dev", true, true)
+	c.SetCookie("jwt", newJWT, 3600, "/", "egehan.dev", true, true)
 
 	return nil
 }
