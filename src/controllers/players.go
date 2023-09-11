@@ -70,12 +70,13 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("jwt", access_token, 3600, "/", "localhost", false, true)
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("jwt", access_token, 3600, "/", "https://skylabmilyoneryeni.vercel.app/", true, true)
 	c.JSON(http.StatusCreated, gin.H{"jwt": access_token})
 }
 
 func (p *PlayerController) LogoutPlayer(c *gin.Context) {
-	c.SetCookie("jwt", "", -1, "/", "localhost", false, true)
+	c.SetCookie("jwt", "", -1, "/", "https://skylabmilyoneryeni.vercel.app/", true, true)
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }
 
