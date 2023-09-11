@@ -75,7 +75,7 @@ func UpdateJWT(c *gin.Context, key string, value interface{}, isUpdatingTime boo
 		return fmt.Errorf("error generating new JWT")
 	}
 
-	c.SetCookie("jwt", newJWT, 3600, "/", "https://skylabmilyoneryeni.vercel.app/", true, true)
+	c.SetCookie("jwt", newJWT, 3600, "/", "skylabmilyoneryeni.vercel.app", true, true)
 
 	return nil
 }
