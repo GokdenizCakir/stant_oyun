@@ -170,7 +170,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		JWTQuestions[questionIndex] = []interface{}{questionID, 0}
 		utils.UpdateJWT(c, "Questions", JWTQuestions, false)
 
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Time is up", "answer": question.Answer})
+		c.JSON(http.StatusOK, gin.H{"answer": question.Answer})
 		return
 	}
 
