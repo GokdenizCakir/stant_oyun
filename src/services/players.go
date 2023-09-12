@@ -69,11 +69,11 @@ func (p *PlayerService) IncreasePoints(ID float64, amount int) (int, error) {
 	return player.Score, nil
 }
 
-func (p *PlayerService) GetScoreboard() ([]PlayerScore, error) {
+func (p *PlayerService) GetScoreboard(page int) ([]PlayerScore, error) {
 	var players []models.Player
 	var playerScores []PlayerScore
 
-	if err := p.DB.Order("score desc").Limit(10).Find(&players).Error; err != nil {
+	if err := p.DB.Order("score desc, id asc").Limit(5).Offset((page - 1) * 5).Find(&players).Error; err != nil {
 		return nil, err
 	}
 

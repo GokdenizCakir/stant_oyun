@@ -17,7 +17,7 @@ func PlayerRouter(r *gin.RouterGroup) {
 
 		playerRouter.
 			POST("", playerController.CreatePlayer).
-			GET("", playerController.GetScoreboard).
+			GET("/:page", playerController.GetScoreboard).
 			POST("/logout", middlewares.AuthMiddleware(), playerController.LogoutPlayer)
 	}
 }

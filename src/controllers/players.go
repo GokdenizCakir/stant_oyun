@@ -81,7 +81,13 @@ func (p *PlayerController) LogoutPlayer(c *gin.Context) {
 }
 
 func (p *PlayerController) GetScoreboard(c *gin.Context) {
-	scoreboard, err := p.playerService.GetScoreboard()
+	page, err := strconv.Atoi(c.Param("page"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	scoreboard, err := p.playerService.GetScoreboard(page)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
