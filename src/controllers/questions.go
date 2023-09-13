@@ -193,6 +193,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		}
 		utils.UpdateJWT(c, "HasGaveUp", true, false)
 		c.JSON(http.StatusOK, gin.H{"answer": question.Answer})
+		return
 	}
 
 	if question.Answer == answerBody.Answer {
