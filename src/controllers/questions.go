@@ -61,9 +61,15 @@ func (q *QuestionController) CreateQuestion(c *gin.Context) {
 func (q *QuestionController) GetQuestion(c *gin.Context) {
 	JWTData := c.MustGet("user")
 	JWTQuestions := JWTData.(map[string]interface{})["Questions"].([]interface{})
+	JWTHasGaveUp := JWTData.(map[string]interface{})["HasGaveUp"].(bool)
 
 	questionIndex := -1
 	var difficulty string
+
+	if JWTHasGaveUp {
+		c.JSON(http.StatusOK, gin.H{"data": "You gave up"})
+		return
+	}
 
 	for i := range JWTQuestions {
 		if JWTQuestions[i].([]interface{})[1].(float64) == 0 {
