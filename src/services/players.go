@@ -73,7 +73,7 @@ func (p *PlayerService) GetScoreboard(page int) ([]PlayerScore, error) {
 	var players []models.Player
 	var playerScores []PlayerScore
 
-	if err := p.DB.Order("score desc, id asc").Limit(5).Offset((page - 1) * 5).Find(&players).Error; err != nil {
+	if err := p.DB.Order("score desc, id asc").Limit(20).Offset((page - 1) * 20).Find(&players).Error; err != nil {
 		return nil, err
 	}
 
