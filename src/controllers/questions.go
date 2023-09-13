@@ -191,7 +191,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		utils.UpdateJWT(c, "hasGaveUp", true, false)
+		utils.UpdateJWT(c, "HasGaveUp", true, false)
 		c.JSON(http.StatusOK, gin.H{"answer": question.Answer})
 	}
 
