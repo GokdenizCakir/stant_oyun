@@ -32,7 +32,7 @@ func (p *PlayerService) CreatePlayer(player *models.Player) (*models.Player, err
 		var perr *pgconn.PgError
 		errors.As(err, &perr)
 		if perr.Code == "23505" || errors.Is(err, gorm.ErrDuplicatedKey) {
-			return nil, fmt.Errorf("bu telefon numarası ile daha önce kayıt olunmuş")
+			return nil, fmt.Errorf("daha önce oynamışsın, tekrar oynayamazsın")
 		}
 		return nil, err
 	}

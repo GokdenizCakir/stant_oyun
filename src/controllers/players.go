@@ -35,6 +35,11 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		return
 	}
 
+	if len(playerBody.FullName) < 3 || len(playerBody.FullName) > 40 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "İsim 3-40 karakter arasında olmalıdır"})
+		return
+	}
+
 	playerBody.Phone = strings.TrimPrefix(playerBody.Phone, "0")
 	if !utils.IsPhoneNumber(playerBody.Phone) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Geçersiz telefon numarası"})
@@ -44,6 +49,7 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 	var newPlayer = &models.Player{
 		FullName: playerBody.FullName,
 		Phone:    playerBody.Phone,
+		IP:       c.ClientIP(),
 	}
 
 	player, err := p.playerService.CreatePlayer(newPlayer)
