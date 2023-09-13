@@ -128,8 +128,8 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	JWTData := c.MustGet("user")
 	JWTPlayerID := JWTData.(map[string]interface{})["ID"].(float64)
 	lastViewedAt := JWTData.(map[string]interface{})["LastViewedAt"].(float64)
-
 	JWTQuestions := JWTData.(map[string]interface{})["Questions"].([]interface{})
+	JWTHasGaveUp := JWTData.(map[string]interface{})["hasGaveUp"].(bool)
 	questionIndex := -1
 	var questionID int
 
@@ -185,6 +185,16 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		return
 	}
 
+	if answerBody.HasGaveUp && !JWTHasGaveUp && !playerHasFinished {
+		_, err := q.QuestionService.IncreasePoints(JWTPlayerID, 0)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		utils.UpdateJWT(c, "hasGaveUp", true, false)
+		c.JSON(http.StatusOK, gin.H{"answer": question.Answer})
+	}
+
 	if question.Answer == answerBody.Answer {
 		playerScoreAfterAnswer, err := q.QuestionService.IncreasePoints(JWTPlayerID, 1)
 		if err != nil {
@@ -208,7 +218,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"answer": question.Answer})
 		return
 	} else {
-		_, err := q.QuestionService.IncreasePoints(JWTPlayerID, 0)
+		_, err := q.QuestionService.IncreasePoints(JWTPlayerID, -playerScore)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -219,5 +229,4 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 
 		c.JSON(http.StatusOK, gin.H{"answer": question.Answer})
 	}
-
 }

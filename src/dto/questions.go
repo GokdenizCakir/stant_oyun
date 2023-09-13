@@ -11,5 +11,6 @@ type CreateQuestionDto struct {
 }
 
 type AnswerQuestionDto struct {
-	Answer string `json:"answer" binding:"required"`
+	Answer    string `json:"answer" binding:"required"`
+	HasGaveUp bool   `json:"hasGaveUp" binding:"required"`
 }

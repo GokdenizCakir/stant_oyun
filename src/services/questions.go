@@ -77,14 +77,13 @@ func (p *QuestionService) IncreasePoints(id float64, amount int) (int, error) {
 		return 0, err
 	}
 
-	player.Score += amount
-
-	if player.Score == questionCount {
+	if amount == -player.Score {
 		player.HasFinished = true
 	}
 
-	if amount == 0 {
-		player.Score = 0
+	player.Score += amount
+
+	if player.Score == questionCount || amount == 0 {
 		player.HasFinished = true
 	}
 
