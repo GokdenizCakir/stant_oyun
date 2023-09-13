@@ -20,7 +20,7 @@ type PlayerController struct {
 type JWTPlayerData struct {
 	ID        uint
 	Questions [][]int
-	hasGaveUp bool
+	HasGaveUp bool
 }
 
 func NewPlayerController(playerService *services.PlayerService) *PlayerController {
@@ -63,7 +63,7 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		emptyQuestionsData[i] = []int{-1, -1}
 	}
 
-	access_token, err := utils.GenerateJWT(JWTPlayerData{ID: player.ID, Questions: emptyQuestionsData, hasGaveUp: false})
+	access_token, err := utils.GenerateJWT(JWTPlayerData{ID: player.ID, Questions: emptyQuestionsData, HasGaveUp: false})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),

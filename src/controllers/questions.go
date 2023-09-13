@@ -129,7 +129,7 @@ func (q *QuestionController) AnswerQuestion(c *gin.Context) {
 	JWTPlayerID := JWTData.(map[string]interface{})["ID"].(float64)
 	lastViewedAt := JWTData.(map[string]interface{})["LastViewedAt"].(float64)
 	JWTQuestions := JWTData.(map[string]interface{})["Questions"].([]interface{})
-	JWTHasGaveUp := JWTData.(map[string]interface{})["hasGaveUp"].(bool)
+	JWTHasGaveUp := JWTData.(map[string]interface{})["HasGaveUp"].(bool)
 	questionIndex := -1
 	var questionID int
 
