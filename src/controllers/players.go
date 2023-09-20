@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/GokdenizCakir/stant_oyun/src/dto"
 	"github.com/GokdenizCakir/stant_oyun/src/models"
@@ -46,10 +47,13 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		return
 	}
 
+	loc, _ := time.LoadLocation("Europe/Istanbul")
+
 	var newPlayer = &models.Player{
-		FullName: playerBody.FullName,
-		Phone:    playerBody.Phone,
-		IP:       c.ClientIP(),
+		FullName:     playerBody.FullName,
+		Phone:        playerBody.Phone,
+		IP:           c.ClientIP(),
+		CreationTime: time.Now().In(loc),
 	}
 
 	player, err := p.playerService.CreatePlayer(newPlayer)
