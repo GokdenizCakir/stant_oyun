@@ -53,7 +53,7 @@ func (p *PlayerController) CreatePlayer(c *gin.Context) {
 		FullName:     playerBody.FullName,
 		Phone:        playerBody.Phone,
 		IP:           c.ClientIP(),
-		CreationTime: time.Now().In(loc),
+		CreationTime: time.Now().In(loc).String(),
 	}
 
 	player, err := p.playerService.CreatePlayer(newPlayer)
