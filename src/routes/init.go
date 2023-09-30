@@ -8,6 +8,7 @@ import (
 var Router *gin.Engine
 
 func Init() {
+	gin.SetMode(gin.ReleaseMode)
 	Router = gin.Default()
 	Router.Use(middlewares.CORSMiddleware())
 
