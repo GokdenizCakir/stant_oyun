@@ -4,16 +4,19 @@ import (
 	"fmt"
 
 	"github.com/GokdenizCakir/stant_oyun/src/models"
+	"github.com/GokdenizCakir/stant_oyun/src/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-func Init() {
+func Init(config utils.Config) {
 	var err error
-	dsn := "host=trumpet.db.elephantsql.com user=fxwnvahh password=3AOt6mw6wPENHWSwHNcMyVDiVBhuGQyb dbname=fxwnvahh port=5432 sslmode=require TimeZone=Europe/London"
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	fmt.Println(config.DBSource)
+
+	DB, err = gorm.Open(postgres.Open(config.DBSource), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
